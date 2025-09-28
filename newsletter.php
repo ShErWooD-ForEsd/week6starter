@@ -8,13 +8,13 @@ $user = '';
 $email = '';
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user = $_POST['user'] ?? '';
-    $email = $_POST['email'] ?? '';
+    $user = filter_input(INPUT_POST, 'user', FILTER_UNSAFE_RAW); //string|null
+    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL); //string|false|null
 
-    if (trim($user) === '') {
+    if ($user === null || trim($user) === '') {
         $errors['user'] = "Username is required";
     }
-    if (trim($email) === '') {
+    if ($email === null || trim($email) === '') {
         $errors['email'] = "Email is required";
     }
     if (empty($errors)) {
