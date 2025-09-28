@@ -19,7 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (empty($errors)) {
         // example of PRG - POST -> REDIRECT -> GET
-        $qs  = 'ok=1&user=' . urlencode($user) . '&email=' . urlencode($email); //qs = query string; urlencode = makes spaces in typed up info into a special character as URLs do not have spaces
+        $qs  = http_build_query([
+            'ok' => 1,
+            'user' => $user,
+            'email' => $email
+        ]);                                     //qs = query string; urlencode = makes spaces in typed up info into a special character as URLs do not have spaces -> change, use http_build_query to make less mistakes -> AFTER (safer, cleaner)
         header('Location: newsletter.php' . $qs);
         exit;
     }
