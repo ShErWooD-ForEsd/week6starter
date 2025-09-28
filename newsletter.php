@@ -4,9 +4,11 @@ function esc_html(string $stringToChange): string
 {
     return htmlspecialchars($stringToChange, ENT_QUOTES, 'UTF-8');
 }
+
 $user = '';
 $email = '';
 $errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = filter_input(INPUT_POST, 'user', FILTER_UNSAFE_RAW); //string|null
     $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL); //string|false|null
@@ -14,17 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user === null || trim($user) === '') {
         $errors['user'] = "Username is required";
     }
-    if ($email === null || trim($email) === '') {
+    if ($email === null || $email === false) {
         $errors['email'] = "Email is required";
     }
-    if (empty($errors)) {
+    if (empty($errors)) { // (!($errors)) seems to do the same thing
         // example of PRG - POST -> REDIRECT -> GET
+        //qs = query string; urlencode = makes spaces in typed up info into a special character as URLs do not have spaces -> change, use http_build_query to make less mistakes -> AFTER (safer, cleaner)
         $qs  = http_build_query([
             'ok' => 1,
             'user' => $user,
             'email' => $email
-        ]);                                     //qs = query string; urlencode = makes spaces in typed up info into a special character as URLs do not have spaces -> change, use http_build_query to make less mistakes -> AFTER (safer, cleaner)
-        header('Location: newsletter.php' . $qs);
+        ]);
+        header('Location: newsletter.php?' . $qs); //remember to add the question mark after the php file... that is what got me here for awhile
         exit;
     }
 }
@@ -47,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- FLASH MESSAGE -->
         <?php if (isset($_GET['ok']) && $_GET['ok'] === '1'): ?>
             <div class="alert alert-success">
-                Thanks <?= esc_html($_GET['user'] ?? 'friend') ?>. Subscribed as <?= esc_html($_GET['email'] ?? '') ?>
+                Thanks <?= esc_html($_GET['user'] ?? 'friend') ?>. Subscribed as <?= esc_html($_GET['email'] ?? '') ?>.
             </div>
         <?php endif; ?>
         <!-- END FLASH MESSAGE -->
@@ -58,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Please fix:
                 <ul class="mb-0">
                     <?php foreach ($errors as $msg): ?>
-                        <li> <?= $msg; ?></li>
+                        <li> <?= esc_html($msg) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
