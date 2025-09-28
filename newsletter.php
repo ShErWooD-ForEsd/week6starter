@@ -1,4 +1,9 @@
 <?php
+//Escape for HTML output
+function esc_html(string $stringToChange): string
+{
+    return htmlspecialchars($stringToChange, ENT_QUOTES, 'UTF-8');
+}
 $user = '';
 $email = '';
 $errors = [];
@@ -31,14 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body class="p-3">
-    
+    <?php require __DIR__ . '/includes/navigation.php'; ?>
     <div class="container">
         <h1>Newsletter</h1>
 
         <!-- FLASH MESSAGE -->
         <?php if (isset($_GET['ok']) && $_GET['ok'] === '1'): ?>
             <div class="alert alert-success">
-                Thanks <?= $_GET['user'] ?>. Subscribed as <?= $_GET['email'] ?>
+                Thanks <?= esc_html($_GET['user'] ?? 'friend') ?>. Subscribed as <?= esc_html($_GET['email'] ?? '') ?>
             </div>
         <?php endif; ?>
         <!-- END FLASH MESSAGE -->
@@ -60,10 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form action="newsletter.php" method="post" class="mb-3">
                 <label class="form-label">Username
                     <!-- sticky form -->
-                    <input class="form-control" type="text" name="user" value=<?= $user ?>>
+                    <input class="form-control" type="text" name="user" value="<?= esc_html($user) ?>">
                 </label>
                 <label class="form-label mt-2">Email
-                    <input class="form-control" type="text" name="email" value=<?= $email ?>>
+                    <input class="form-control" type="text" name="email" value="<?= esc_html($email) ?>">
                 </label>
                 <button class="btn btn-primary mt-3" type="submit">Subscribe</button>
             </form>
